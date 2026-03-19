@@ -11,6 +11,20 @@
 version: '3.8'
 
 services:
+  # ADMINER
+  adminer:
+    container_name: adminer
+    image: adminer:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ADMINER_DEFAULT_SERVER=db
+  
   # ----------------------------------------------------------
   # WEB APPLICATION
   # ----------------------------------------------------------
