@@ -5,6 +5,43 @@
 
 <img width="960" height="540" alt="task1_table_screenshot" src="https://github.com/user-attachments/assets/2e79c3f3-b11c-4408-b569-8eb7c97b80f5" />
 
+## (b) Change the base image
+a) What changes are needed to make it work with Alpine?  
+Change this line number 12 in Dockerfile from "slim" to "alpine":
+```cmd
+FROM python:3.11-slim
+```
+b) Build both versions and compare sizes using docker images  
+slim version:  
+```cmd
+C:\Users\Domi\Documents\Bachelor_Comp_Sci\Semester\2026_FS\DevOps\Homework_1\lecture5-dockerk8s-demo>docker images
+REPOSITORY                    TAG         IMAGE ID       CREATED          SIZE
+lecture5-dockerk8s-demo-web   latest      ba9734a8ce13   24 minutes ago   232MB
+adminer                       latest      16a72c6140f6   6 days ago       170MB
+postgres                      15-alpine   fceb6f86328c   2 weeks ago      392MB
+redis                         7-alpine    8b81dd37ff02   3 weeks ago      60.7MB
+testbed-odoo                  latest      b935d6ea9728   10 months ago    3.08GB
+postgres                      15          b8e11f8a8b38   10 months ago    608MB
+odoo                          18          89b4f1047a5d   12 months ago    2.99GB
+odoo                          latest      89b4f1047a5d   12 months ago    2.99GB
+<none>                        <none>      9e9298817d19   12 months ago    608MB
+```
+
+alpine version:  
+```cmd
+C:\Users\Domi\Documents\Bachelor_Comp_Sci\Semester\2026_FS\DevOps\Homework_1\lecture5-dockerk8s-demo>docker images
+REPOSITORY                    TAG         IMAGE ID       CREATED          SIZE
+lecture5-dockerk8s-demo-web   latest      ba9734a8ce13   28 minutes ago   232MB
+adminer                       latest      16a72c6140f6   6 days ago       170MB
+postgres                      15-alpine   fceb6f86328c   2 weeks ago      392MB
+redis                         7-alpine    8b81dd37ff02   3 weeks ago      60.7MB
+testbed-odoo                  latest      b935d6ea9728   10 months ago    3.08GB
+postgres                      15          b8e11f8a8b38   10 months ago    608MB
+odoo                          18          89b4f1047a5d   12 months ago    2.99GB
+odoo                          latest      89b4f1047a5d   12 months ago    2.99GB
+<none>                        <none>      9e9298817d19   12 months ago    608MB
+```
+c) Document the size difference and any build issues you encountered
 
 # Lecture 5: Docker & Kubernetes Demo
 
