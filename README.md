@@ -1,3 +1,11 @@
+# [Link to forked repository](https://github.com/domi-cmd/lecture5-dockerk8s-demo)
+
+# Task 1
+## (a) Adminer
+
+<img width="960" height="540" alt="task1_table_screenshot" src="https://github.com/user-attachments/assets/2e79c3f3-b11c-4408-b569-8eb7c97b80f5" />
+
+
 # Lecture 5: Docker & Kubernetes Demo
 
 > DevOps for Cyber-Physical Systems | University of Bern
