@@ -11,37 +11,86 @@ Change this line number 12 in Dockerfile from "slim" to "alpine":
 ```cmd
 FROM python:3.11-slim
 ```
-b) Build both versions and compare sizes using docker images  
-slim version:  
+b) Build both versions and compare sizes using docker images: (It's interesting that the alpine image is smaller than the slime one??)
 ```cmd
-C:\Users\Domi\Documents\Bachelor_Comp_Sci\Semester\2026_FS\DevOps\Homework_1\lecture5-dockerk8s-demo>docker images
-REPOSITORY                    TAG         IMAGE ID       CREATED          SIZE
-lecture5-dockerk8s-demo-web   latest      ba9734a8ce13   24 minutes ago   232MB
-adminer                       latest      16a72c6140f6   6 days ago       170MB
-postgres                      15-alpine   fceb6f86328c   2 weeks ago      392MB
-redis                         7-alpine    8b81dd37ff02   3 weeks ago      60.7MB
-testbed-odoo                  latest      b935d6ea9728   10 months ago    3.08GB
-postgres                      15          b8e11f8a8b38   10 months ago    608MB
-odoo                          18          89b4f1047a5d   12 months ago    2.99GB
-odoo                          latest      89b4f1047a5d   12 months ago    2.99GB
-<none>                        <none>      9e9298817d19   12 months ago    608MB
-```
-
-alpine version:  
-```cmd
-C:\Users\Domi\Documents\Bachelor_Comp_Sci\Semester\2026_FS\DevOps\Homework_1\lecture5-dockerk8s-demo>docker images
-REPOSITORY                    TAG         IMAGE ID       CREATED          SIZE
-lecture5-dockerk8s-demo-web   latest      ba9734a8ce13   28 minutes ago   232MB
-adminer                       latest      16a72c6140f6   6 days ago       170MB
-postgres                      15-alpine   fceb6f86328c   2 weeks ago      392MB
-redis                         7-alpine    8b81dd37ff02   3 weeks ago      60.7MB
-testbed-odoo                  latest      b935d6ea9728   10 months ago    3.08GB
-postgres                      15          b8e11f8a8b38   10 months ago    608MB
-odoo                          18          89b4f1047a5d   12 months ago    2.99GB
-odoo                          latest      89b4f1047a5d   12 months ago    2.99GB
-<none>                        <none>      9e9298817d19   12 months ago    608MB
+Domi\Homework_1\lecture5-dockerk8s-demo>docker images
+REPOSITORY                    TAG         IMAGE ID       CREATED       SIZE
+lecture5-webapp               alpine      c9686577c56d   2 days ago    127MB
+lecture5-webapp               slim        5f92a97e171d   2 days ago    232MB
+lecture5-dockerk8s-demo-web   latest      ba9734a8ce13   2 days ago    232MB
+adminer                       latest      16a72c6140f6   9 days ago    170MB
+postgres                      15-alpine   fceb6f86328c   3 weeks ago   392MB
+redis                         7-alpine    8b81dd37ff02   3 weeks ago   60.7MB
 ```
 c) Document the size difference and any build issues you encountered
+The alpine image version is 45% smaller than the slim image. I would have expected it to be the other way around. I didn't encounter any build issues, but ran into some accessing/deploymned(?) issues because of allocating the same localhost port for the different images.
+
+# Task 2
+## (a) Image Tagging and Registry
+### Commands used:
+```cmd
+Domi\Homework_1\lecture5-dockerk8s-demo>docker login
+Authenticating with existing credentials... [Username: domicmd]
+
+i Info → To login with a different account, run 'docker logout' followed by 'docker login'
+
+Login Succeeded
+
+Domi\Homework_1\lecture5-dockerk8s-demo>docker build -t domicmd/task-app:v1.0 .
+[+] Building 0.7s (12/12) FINISHED                                                                                                                     docker:desktop-linux
+ => [internal] load build definition from Dockerfile                                                                                                                   0.0s
+ => => transferring dockerfile: 1.80kB                                                                                                                                 0.0s
+ => [internal] load metadata for docker.io/library/python:3.11-alpine                                                                                                  0.2s
+ => [internal] load .dockerignore                                                                                                                                      0.0s
+ => => transferring context: 236B                                                                                                                                      0.0s
+ => [1/7] FROM docker.io/library/python:3.11-alpine@sha256:f07e2ace46f560f09a6eeec7b4913b80ee99546e749ef82342a419a326620856                                            0.0s
+ => => resolve docker.io/library/python:3.11-alpine@sha256:f07e2ace46f560f09a6eeec7b4913b80ee99546e749ef82342a419a326620856                                            0.0s
+ => [internal] load build context                                                                                                                                      0.0s
+ => => transferring context: 275B                                                                                                                                      0.0s
+ => CACHED [2/7] WORKDIR /app                                                                                                                                          0.0s
+ => CACHED [3/7] COPY requirements.txt .                                                                                                                               0.0s
+ => CACHED [4/7] RUN pip install --no-cache-dir -r requirements.txt                                                                                                    0.0s
+ => CACHED [5/7] COPY app.py .                                                                                                                                         0.0s
+ => CACHED [6/7] COPY templates/ templates/                                                                                                                            0.0s
+ => CACHED [7/7] COPY assets/ assets/                                                                                                                                  0.0s
+ => exporting to image                                                                                                                                                 0.1s
+ => => exporting layers                                                                                                                                                0.0s
+ => => exporting manifest sha256:5a722d4667173ef25831ace80b67fa6a541378f9646170879af4deba3bed0b75                                                                      0.0s
+ => => exporting config sha256:49c90c3692f9981655364d1cbb84c140a837ea2253a35d1f9a04081639e23fac                                                                        0.0s
+ => => exporting attestation manifest sha256:2757c1ac848284723d52a65f91482cf0f347b8fedd186566209ca1d486e6b3de                                                          0.0s
+ => => exporting manifest list sha256:5823173245306100bd7e85835f492bc41a9846b6be76d25547f558aae2d52d84                                                                 0.0s
+ => => naming to docker.io/domicmd/task-app:v1.0                                                                                                                       0.0s
+ => => unpacking to docker.io/domicmd/task-app:v1.0                                                                                                                    0.0s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/s99vuq4tbdwngtq6lzl2ct0hb
+
+Domi\Homework_1\lecture5-dockerk8s-demo>docker push domicmd/task-app:v1.0
+The push refers to repository [docker.io/domicmd/task-app]
+97e526324ae9: Pushed
+589002ba0eae: Mounted from domicmd/lecture5-webapp
+42d947d76d9e: Mounted from domicmd/lecture5-webapp
+b07ed0e2b2fd: Mounted from domicmd/lecture5-webapp
+92964b859cb8: Mounted from domicmd/lecture5-webapp
+811797f98545: Mounted from domicmd/lecture5-webapp
+cbaa01634a9f: Mounted from domicmd/lecture5-webapp
+0b03716e5e03: Mounted from domicmd/lecture5-webapp
+d578531a3710: Mounted from domicmd/lecture5-webapp
+8d1e490ed26d: Mounted from domicmd/lecture5-webapp
+eb00511b4ef6: Mounted from domicmd/lecture5-webapp
+v1.0: digest: sha256:5823173245306100bd7e85835f492bc41a9846b6be76d25547f558aae2d52d84 size: 856
+```
+### Docker Hub Image Screenshot:
+<img width="1895" height="938" alt="image" src="https://github.com/user-attachments/assets/526b001c-e7ad-4881-80ec-01ad9881aaf7" />
+
+## (b) Container Inspection
+### docker compose logs web:
+-> Calls docker compose and prints all the logs from the web app container to the terminal.
+
+### docker inspect lecture5-web
+-> Tells docker to create and print a json dump file of the entire lecture5-web docker container, which includes things such as the ID of the images, mounts, etc.
+
+### docker stats
+-> Displays stats for all running docker containers in the terminal, including the container id, name, CPU and memory usage, and other things (PIDS probably pod ID's?)
 
 # Lecture 5: Docker & Kubernetes Demo
 
