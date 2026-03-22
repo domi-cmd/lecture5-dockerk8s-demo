@@ -1,8 +1,11 @@
-# [Link to forked repository](https://github.com/domi-cmd/lecture5-dockerk8s-demo)
+# Link to forked repository: https://github.com/domi-cmd/lecture5-dockerk8s-demo
+
+# Docker Hub Username: domicmd
 
 # Task 1
 ## (a) Adminer
-
+### Files changed:
+Only the the requested docker-compose.yml
 <img width="960" height="540" alt="task1_table_screenshot" src="https://github.com/user-attachments/assets/2e79c3f3-b11c-4408-b569-8eb7c97b80f5" />
 
 ## (b) Change the base image
@@ -91,6 +94,161 @@ v1.0: digest: sha256:5823173245306100bd7e85835f492bc41a9846b6be76d25547f558aae2d
 
 ### docker stats
 -> Displays stats for all running docker containers in the terminal, including the container id, name, CPU and memory usage, and other things (PIDS probably pod ID's?)
+
+# Task 3
+## (a) Deploy the Application (Screenshots + pods as requested)
+## Issues encountered: 
+Only worked when I fixed the command to have two instead of one "-": kubectl scale deployment lecture5-web -–replicas=5
+
+```cmd
+Domi\Homework_1\lecture5-dockerk8s-demo>kubectl get pods
+NAME                            READY   STATUS    RESTARTS   AGE
+lecture5-web-7594658b4f-jwkll   1/1     Running   0          77s
+lecture5-web-7594658b4f-lg84k   1/1     Running   0          74s
+lecture5-web-7594658b4f-xdgxx   1/1     Running   0          80s
+postgres-5b558847bf-q65w6       1/1     Running   0          6m45s
+redis-586cf667d9-tvgdh          1/1     Running   0          6m45s
+```
+
+<img width="1231" height="950" alt="image" src="https://github.com/user-attachments/assets/0f7d11c3-bee5-4532-99c1-0b83c5b8e778" />
+
+
+## (b) Scale and Test Load Balancing 
+
+### Issues encountered: 
+The file would only run when I changed the line <SERVICE_URL = "http://127.0.0.1:63501/info"> to <SERVICE_URL = "http://localhost/info> in the code.
+
+**Balancing Test Output:**
+```cmd
+Domi\Homework_1\lecture5-dockerk8s-demo>python test_load_balancing.py
+🚀 Testing load balancing across pods...
+📍 Service URL: http://localhost/info
+🔄 Making 20 requests...
+
+Request  1: Served by lecture5-web-7594658b4f-jwkll
+Request  2: Served by lecture5-web-7594658b4f-jwkll
+Request  3: Served by lecture5-web-7594658b4f-hvmxl
+Request  4: Served by lecture5-web-7594658b4f-jwkll
+Request  5: Served by lecture5-web-7594658b4f-jwkll
+Request  6: Served by lecture5-web-7594658b4f-49wmg
+Request  7: Served by lecture5-web-7594658b4f-hvmxl
+Request  8: Served by lecture5-web-7594658b4f-jwkll
+Request  9: Served by lecture5-web-7594658b4f-49wmg
+Request 10: Served by lecture5-web-7594658b4f-hvmxl
+Request 11: Served by lecture5-web-7594658b4f-49wmg
+Request 12: Served by lecture5-web-7594658b4f-hvmxl
+Request 13: Served by lecture5-web-7594658b4f-lg84k
+Request 14: Served by lecture5-web-7594658b4f-jwkll
+Request 15: Served by lecture5-web-7594658b4f-xdgxx
+Request 16: Served by lecture5-web-7594658b4f-lg84k
+Request 17: Served by lecture5-web-7594658b4f-49wmg
+Request 18: Served by lecture5-web-7594658b4f-49wmg
+Request 19: Served by lecture5-web-7594658b4f-hvmxl
+Request 20: Served by lecture5-web-7594658b4f-lg84k
+
+============================================================
+📊 LOAD BALANCING RESULTS
+============================================================
+
+Total successful requests: 20
+Number of unique pods serving requests: 5
+
+lecture5-web-7594658b4f-jwkll:  6 requests ( 30.0%) ██████
+lecture5-web-7594658b4f-hvmxl:  5 requests ( 25.0%) █████
+lecture5-web-7594658b4f-49wmg:  5 requests ( 25.0%) █████
+lecture5-web-7594658b4f-lg84k:  3 requests ( 15.0%) ███
+lecture5-web-7594658b4f-xdgxx:  1 requests (  5.0%) █
+
+============================================================
+✅ SUCCESS: Load balancing is working!
+   Traffic distributed across 5 pods
+============================================================
+```
+
+** Explain: How does Kubernetes distribute traffic? (2-3 sentences)**:
+Whenever we sent a request to the webapp running on localhost, kubernetes automatically takes that request and gives it to a randomly chosen available pod. It attempts to spread the traffic evenly, using round robin logic for picking what running pod to choose. Whenever pods are added, removed or become unhealthy/crash, kubernetes automatically takes this into account when distributing traffic.
+
+## (c) Self-Healing
+**Explain: Why is self-healing important? (2-3 sentences):**
+Self-healing means that whenever a pod crashes or gets deleted, kubernetes automatically starts up/creates a replacement pod. This way, the configured number of replica pods is guaranteed to be maintained by the system, even if something crashes overnight. This avoids overloading of the system, as it avoids downtime due to some system part failing.
+```cmd
+Domi\Homework_1\lecture5-dockerk8s-demo>kubectl get pods
+NAME                            READY   STATUS    RESTARTS   AGE
+lecture5-web-7594658b4f-49wmg   1/1     Running   0          14m
+lecture5-web-7594658b4f-hvmxl   1/1     Running   0          14m
+lecture5-web-7594658b4f-jwkll   1/1     Running   0          19m
+lecture5-web-7594658b4f-lg84k   1/1     Running   0          19m
+lecture5-web-7594658b4f-xdgxx   1/1     Running   0          20m
+postgres-5b558847bf-q65w6       1/1     Running   0          25m
+redis-586cf667d9-tvgdh          1/1     Running   0          25m
+
+Domi\Homework_1\lecture5-dockerk8s-demo>kubectl delete pod lecture5-web-7594658b4f-49wmg
+pod "lecture5-web-7594658b4f-49wmg" deleted
+
+Domi\Homework_1\lecture5-dockerk8s-demo>kubectl get pods
+NAME                            READY   STATUS    RESTARTS   AGE
+lecture5-web-7594658b4f-hvmxl   1/1     Running   0          15m
+lecture5-web-7594658b4f-jwkll   1/1     Running   0          20m
+lecture5-web-7594658b4f-lg84k   1/1     Running   0          20m
+lecture5-web-7594658b4f-v2psp   1/1     Running   0          5s
+lecture5-web-7594658b4f-xdgxx   1/1     Running   0          20m
+postgres-5b558847bf-q65w6       1/1     Running   0          26m
+redis-586cf667d9-tvgdh          1/1     Running   0          26m
+
+Domi\Homework_1\lecture5-dockerk8s-demo>kubectl get pods
+NAME                            READY   STATUS    RESTARTS   AGE
+lecture5-web-7594658b4f-hvmxl   1/1     Running   0          15m
+lecture5-web-7594658b4f-jwkll   1/1     Running   0          20m
+lecture5-web-7594658b4f-lg84k   1/1     Running   0          20m
+lecture5-web-7594658b4f-v2psp   1/1     Running   0          21s
+lecture5-web-7594658b4f-xdgxx   1/1     Running   0          20m
+postgres-5b558847bf-q65w6       1/1     Running   0          26m
+redis-586cf667d9-tvgdh          1/1     Running   0          26m
+
+Domi\Homework_1\lecture5-dockerk8s-demo>kubectl delete pod lecture5-web-7594658b4f-hvmxl
+pod "lecture5-web-7594658b4f-hvmxl" deleted
+
+Domi\Homework_1\lecture5-dockerk8s-demo>kubectl get pods
+NAME                            READY   STATUS    RESTARTS   AGE
+lecture5-web-7594658b4f-5d9p4   1/1     Running   0          3s
+lecture5-web-7594658b4f-jwkll   1/1     Running   0          21m
+lecture5-web-7594658b4f-lg84k   1/1     Running   0          21m
+lecture5-web-7594658b4f-v2psp   1/1     Running   0          37s
+lecture5-web-7594658b4f-xdgxx   1/1     Running   0          21m
+postgres-5b558847bf-q65w6       1/1     Running   0          26m
+redis-586cf667d9-tvgdh          1/1     Running   0          26m
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Lecture 5: Docker & Kubernetes Demo
 
