@@ -238,9 +238,9 @@ redis-586cf667d9-tvgdh          1/1     Running   0          26m
 
 
 
+---
 
-
-
+# Provided part of the readme, not part of the submission:
 
 
 
